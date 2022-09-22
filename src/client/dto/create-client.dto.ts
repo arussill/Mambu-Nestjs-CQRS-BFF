@@ -39,6 +39,7 @@ export class CreateClientDto {
     @IsArray()
     @IsOptional()
     @ValidateNested()
+    @Type(() => IdDocumentDto)
     idDocuments?: IdDocumentDto;
 
     @IsString()
@@ -49,6 +50,7 @@ export class CreateClientDto {
     @IsOptional()
     @IsArray()
     @ValidateNested()
+    @Type(() => AddressDto)
     addresses?: AddressDto;
 
     @IsString()

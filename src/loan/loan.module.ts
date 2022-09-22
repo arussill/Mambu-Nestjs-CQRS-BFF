@@ -8,6 +8,6 @@ import { LoanApprovedHandler } from './events/loan-approved.handler';
 @Module({
   controllers: [LoanController],
   imports: [CqrsModule, SharedModule],
-  providers: [...LoansCommandsHandlers, LoanApprovedHandler],
+  providers: [...LoansCommandsHandlers, LoanApprovedHandler],//LoanApprovedHandler es el manejador de eventos
 })
 export class LoanModule {}

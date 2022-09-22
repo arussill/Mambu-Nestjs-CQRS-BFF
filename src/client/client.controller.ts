@@ -3,7 +3,6 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { v4 as uuid } from 'uuid';
 import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
 import { CreateClientCommand } from './commands/create-client/create-client.command';
 import { GetClientsQuery } from './queries/get-clients/get-clients.query';
 import { PaginationDto } from '../shared/dto/pagination.dto';
@@ -18,6 +17,8 @@ export class ClientController {
   /**Crear un cliente */
   @Post()
   async createClient(@Body() createClientDto: CreateClientDto): Promise<any> {
+    // console.log('Controlador cliente:');
+    // console.log(createClientDto);
     createClientDto._personalizados = { External_ID: uuid() };
     return await this.commandBus.execute<CreateClientCommand, any>(
       new CreateClientCommand(createClientDto),

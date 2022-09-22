@@ -1,8 +1,9 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { CreateLoanCommand } from './loan-create.command';
 import { ConfigService } from '@nestjs/config';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
+import { Loan } from 'src/loan/models/loan.models';
 /**
  * Manejador de comandos de creditos
  */
@@ -11,23 +12,17 @@ export class CreateLoanHandler implements ICommandHandler<CreateLoanCommand> {
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
+    private readonly eventPublisher: EventPublisher
   ) {}
-  async execute(command: CreateLoanCommand): Promise<any> {
+  async execute(command: CreateLoanCommand): Promise<Loan> {
     
     //DTO /Body /Data
     const { createLoandDto } = command;
-    console.log ("Handler loan dto:")
-    console.log (createLoandDto)
+
     //Obtener los header
     const headers = getHeaders(this.configService);
-    console.log ("Handler loan headers:")
-    console.log (headers)
     
-    console.log ("Handler loan url:")
-    console.log (this.configService.get('urlLoans'))
-    console.log (this.configService.get('baseUrl'))
-    
-    const data = await this.http.post<any>(
+    const data = await this.http.post<Loan>(
       this.configService.get('urlLoans'),
       createLoandDto,
       {
@@ -35,6 +30,7 @@ export class CreateLoanHandler implements ICommandHandler<CreateLoanCommand> {
         baseURL: this.configService.get('baseUrl'),
       },
     );
-    return data;
+    
+   return data
   }
 }

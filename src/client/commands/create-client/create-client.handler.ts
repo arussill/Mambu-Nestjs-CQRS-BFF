@@ -1,4 +1,4 @@
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateClientCommand } from './create-client.command';
 import { ConfigService } from '@nestjs/config';
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
@@ -12,7 +12,6 @@ export class CreateClientHandler implements ICommandHandler<CreateClientCommand>
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
-    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(createClientCommand: CreateClientCommand): Promise<any> {

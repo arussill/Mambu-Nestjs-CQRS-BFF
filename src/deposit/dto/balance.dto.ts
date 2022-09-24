@@ -1,6 +1,5 @@
-import { IsNumber, IsOptional } from 'class-validator';
-
-export class Balances {
+import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+export class BalancesDto {
   @IsOptional()
   @IsNumber()
   availableBalance?: number;

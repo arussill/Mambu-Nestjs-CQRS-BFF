@@ -23,7 +23,7 @@ export class GetLoanByIdHandler implements ICommandHandler<GetLoanByIdCommand> {
     const { id, details } = command;
 
     // Busca en mambu si existe esta data
-    const data = await this.http.getloanById<Loan>(
+    const data = await this.http.getById<Loan>(
       this.configService.get(`urlLoans`) + id,
       {
         headers,

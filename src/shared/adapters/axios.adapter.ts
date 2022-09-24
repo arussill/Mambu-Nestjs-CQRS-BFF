@@ -6,7 +6,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 export class AxiosAdapter implements HttpAdapter {
   private axios: AxiosInstance = axios;
 
-  //Obtiene
+  //Obtiene 
   async get<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
     // console.log("adapter:")
     // console.log("url:")
@@ -23,8 +23,13 @@ export class AxiosAdapter implements HttpAdapter {
     }
   }
 
-  //GetloanById
-  async getloanById<T>(
+  /**
+   * GetloanById
+   * Obtine por id la cuenta de prestamos o credito
+   * GetDepositById
+   * Obtine por id la cuenta de deposito
+   */
+  async getById<T>(
     url: string,
     config?: AxiosRequestConfig<any>,
   ): Promise<T> {
@@ -40,7 +45,7 @@ export class AxiosAdapter implements HttpAdapter {
       return data;
     } catch (error) {
       console.log(
-        `Este error pertenece al getByIdLoan, se esta lanzando desde axios.adapter ${error}`,
+        `Este error pertenece al getById, se esta lanzando desde axios.adapter ${error}`,
       );
       return null;
     }

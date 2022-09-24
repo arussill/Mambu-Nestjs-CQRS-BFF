@@ -25,17 +25,17 @@ export class DepositTransactionHandler
     const { depositTransactionDto, id } = command;
 
     const headers = getHeaders(this.configService);
-    //Buscar que la cuenta exista y que su estado se apobado
+    //Buscar que la cuenta exista 
     const depositAccount = await this.commandBus.execute<
       DepositAccountIdCommand,
       Deposit
     >(new DepositAccountIdCommand(id));
-    //Si cumple la condicion entonces si realiza un deposito en la cuenta
+    //Si cumple la condicion entonces  que su estado se apobado o activo
     if (
       depositAccount.accountState === 'APPROVED' ||
       depositAccount.accountState === 'ACTIVE'
     ) {
-      //consumir la ruta de depositar una cantidad en la cuenta de deposito
+      //consumir la ruta de depositar una cantidad de dinero en la cuenta de deposito
       const data = await this.http.post<any>(
         this.configService.get('urlDeposits') + id + '/deposit-transactions', //ruta para poder ingresar una cantidad a la cuenta de deposito de id
         depositTransactionDto,

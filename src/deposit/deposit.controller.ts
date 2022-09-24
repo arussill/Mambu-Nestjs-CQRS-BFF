@@ -1,25 +1,20 @@
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from '@nestjs/common';
-import { CreateDepositDto, DepositTransactionDto } from './dto';
+  CreateDepositDto,
+  DepositTransactionDto,
+  TransferTransactionDto,
+  WithdrawalTransactionDto,
+} from './dto';
 import { CommandBus } from '@nestjs/cqrs';
 import {
   CreateDepositCommand,
   DepositAccountIdCommand,
   DepositTransactionCommand,
+  TransferTransactionCommand,
+  WithdrawalTransactionCommand,
 } from './commands';
 import { Deposit } from './models/deposit.models';
 import { PaginationDto } from '../shared/dto/pagination.dto';
-import { WithdrawalTransactionDto } from './dto/withdrawal-transaction.dto';
-import { WithdrawalTransactionCommand } from './commands/withdrawal-transaction/withdrawal-transaction.command';
-
 @Controller('deposits')
 export class DepositController {
   constructor(private readonly commandBus: CommandBus) {}
@@ -51,6 +46,7 @@ export class DepositController {
     );
   }
 
+  /**Retiro de dinero en una cuenta */
   @Post(':id/withdrawal-transactions')
   async withdrawal(
     @Param('id') id: string,
@@ -58,6 +54,16 @@ export class DepositController {
   ) {
     return await this.commandBus.execute<WithdrawalTransactionCommand, any>(
       new WithdrawalTransactionCommand(id, withdrawalTransactionDto),
+    );
+  }
+  /**Transferencia entre cuentas */
+  @Post(':id/transfer-transactions')
+  async transfer(
+    @Body() transferTransactionDto: TransferTransactionDto,
+    @Param('id') id: string,
+  ) {
+    return await this.commandBus.execute<TransferTransactionCommand, any>(
+      new TransferTransactionCommand(id, transferTransactionDto),
     );
   }
 }

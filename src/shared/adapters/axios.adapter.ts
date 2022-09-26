@@ -6,17 +6,10 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 export class AxiosAdapter implements HttpAdapter {
   private axios: AxiosInstance = axios;
 
-  //Obtiene 
+  //Obtiene
   async get<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
-    // console.log("adapter:")
-    // console.log("url:")
-    // console.log(url)
-    // console.log("config:")
-    // console.log(config)
     try {
       const { data } = await this.axios.get<T>(url, config);
-      // console.log("data:")
-      // console.log(data)
       return data;
     } catch (error) {
       throw new Error(error);
@@ -29,19 +22,9 @@ export class AxiosAdapter implements HttpAdapter {
    * GetDepositById
    * Obtine por id la cuenta de deposito
    */
-  async getById<T>(
-    url: string,
-    config?: AxiosRequestConfig<any>,
-  ): Promise<T> {
-    // console.log("adapter:")
-    // console.log("url:")
-    // console.log(url)
-    // console.log("config:")
-    // console.log(config)
+  async getById<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
     try {
       const { data } = await this.axios.get<T>(url, config);
-      // console.log("data:")
-      // console.log(data)
       return data;
     } catch (error) {
       console.log(
@@ -57,12 +40,6 @@ export class AxiosAdapter implements HttpAdapter {
     dto?: any,
     config?: AxiosRequestConfig<any>,
   ): Promise<T> {
-    // console.log("adapter url:")
-    // console.log(url)
-    // console.log("adapter dto:")
-    // console.log(dto)
-    // console.log("adapter config:")
-    // console.log(config)
     try {
       const { data } = await this.axios.post<T>(url, dto, config);
       return data;

@@ -5,6 +5,7 @@ import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { Deposit } from '../../models/deposit.models';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
 
+/**Manejador de comando que crea una nueva cuenta de deposito */
 @CommandHandler(CreateDepositCommand)
 export class CreateDepositHandler
   implements ICommandHandler<CreateDepositCommand>

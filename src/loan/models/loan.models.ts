@@ -3,7 +3,6 @@ import { ApproveLoanDto } from '../dto/approve-loan.dto';
 import { LoanApprovedEvent } from '../events/loan-approved.event';
 
 export class Loan extends AggregateRoot {
-
   constructor(
     private readonly _id: string,
     private readonly _encodedKey: string,
@@ -14,9 +13,8 @@ export class Loan extends AggregateRoot {
     private readonly _accountState: string,
     // private readonly productTypeKey: string,
     private readonly _loanName: string,
-    private readonly _loanAmount: number,
-  ) // private readonly paymentMethod: string,
-  // private readonly accruedInterest: number,
+    private readonly _loanAmount: number, // private readonly paymentMethod: string,
+  ) // private readonly accruedInterest: number,
   // private readonly accruedPenalty: number,
   // private readonly allowOffset: boolean,
   // private readonly arrearsTolerancePeriod: number,
@@ -24,14 +22,11 @@ export class Loan extends AggregateRoot {
     super();
   }
 
-   // Metodo que aplica el evento
-   prestamoAprovado(id: string, approveLoanDto: ApproveLoanDto){
-    // console.log("LOAN ENTITY")
-    // console.log("Dentro del metodo que apply en el event")
-    // console.log(approveLoanDto)
+  // Metodo que aplica el evento
+  approvedLoan(id: string, approveLoanDto: ApproveLoanDto) {
     this.apply(new LoanApprovedEvent(id, approveLoanDto));
   }
-  
+
   _Example_Custom_Fields: ExampleCustomFields;
   _Installments_Loan_Accounts: InstallmentsLoanAccounts;
   _Others_Loan_Accounts: OthersLoanAccounts;

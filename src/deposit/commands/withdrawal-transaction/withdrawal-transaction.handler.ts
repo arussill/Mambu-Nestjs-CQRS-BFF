@@ -1,12 +1,13 @@
-import { CommandHandler, ICommandHandler, CommandBus } from '@nestjs/cqrs';
-import { WithdrawalTransactionCommand } from './withdrawal-transaction.command';
+import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { Deposit } from '../../../deposit/models/deposit.models';
+import { DepositAccountIdQuery } from '../../../deposit/queries/deposit-account-id/deposit-account-id.query';
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
-import { DepositAccountIdCommand } from '../deposit-account-id/deposit-account-id.command';
-import { Deposit } from '../../../deposit/models/deposit.models';
-import { NotFoundException } from '@nestjs/common';
+import { WithdrawalTransactionCommand } from './withdrawal-transaction.command';
 
+/**Manejador de comando que permite realizar una retiro */
 @CommandHandler(WithdrawalTransactionCommand)
 export class WithdrawalTransactionHandler
   implements ICommandHandler<WithdrawalTransactionCommand>
@@ -14,7 +15,7 @@ export class WithdrawalTransactionHandler
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
-    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   async execute(command: WithdrawalTransactionCommand): Promise<any> {
@@ -25,13 +26,11 @@ export class WithdrawalTransactionHandler
     const { id, withdrawalTransactionDto } = command;
 
     //se comprueba la existencia de la cuenta
-    const depositAccount = await this.commandBus.execute<
-      DepositAccountIdCommand,
+    const depositAccount = await this.queryBus.execute<
+      DepositAccountIdQuery,
       Deposit
-    >(new DepositAccountIdCommand(id));
+    >(new DepositAccountIdQuery(id));
 
-    console.log("RETIROS")
-    console.log(depositAccount)
     //se comprueba que la cuenta este activa
     if (depositAccount.accountState !== 'ACTIVE')
       throw new NotFoundException(

@@ -1,2 +1,1 @@
-export { Action } from "./action.enum";
-
+export { Action } from './action.enum';

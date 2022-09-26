@@ -6,7 +6,13 @@ import { LoanModule } from './loan/loan.module';
 import { DepositModule } from './deposit/deposit.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), ClientModule, SharedModule, LoanModule, DepositModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ClientModule,
+    SharedModule,
+    LoanModule,
+    DepositModule,
+  ],
   controllers: [],
   providers: [],
 })

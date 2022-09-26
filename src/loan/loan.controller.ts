@@ -1,23 +1,18 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Param,
-  Get,
-} from '@nestjs/common';
-
-import { CommandBus } from '@nestjs/cqrs';
-import { ApproveLoanDto, CreateLoanDto } from './dto';
-import { CreateLoanCommand, ApproveLoanCommand, GetLoanByIdCommand } from './commands';
-import { Query } from '@nestjs/common/decorators/http/route-params.decorator';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PaginationDto } from '../shared/dto/pagination.dto';
+import { ApproveLoanCommand, CreateLoanCommand } from './commands';
+import { ApproveLoanDto, CreateLoanDto } from './dto';
 import { Loan } from './models/loan.models';
-
+import { GetLoanByIdQuery } from './queries/get-loan/loan-by-id.query';
 
 /**Crear un credito */
 @Controller('loans')
 export class LoanController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post()
   async create(@Body() createLoanDto: CreateLoanDto): Promise<Loan> {
@@ -28,7 +23,10 @@ export class LoanController {
 
   /**Aprovar credito */
   @Post(':id')
-  async approveLoan(@Body() approveLoanDto: ApproveLoanDto, @Param('id') id:string): Promise<any> {
+  async approveLoan(
+    @Body() approveLoanDto: ApproveLoanDto,
+    @Param('id') id: string,
+  ): Promise<any> {
     return await this.commandBus.execute<ApproveLoanCommand, any>(
       new ApproveLoanCommand(approveLoanDto, id),
     );
@@ -36,9 +34,12 @@ export class LoanController {
 
   /**Obtener por id de loan */
   @Get(':id')
-  async getLoanById(@Param('id') id:string, @Query() details?:PaginationDto):Promise<any>{
-    return await this.commandBus.execute<GetLoanByIdCommand, any>(
-      new GetLoanByIdCommand(id, details)
-    )
+  async getLoanById(
+    @Param('id') id: string,
+    @Query() details?: PaginationDto,
+  ): Promise<any> {
+    return await this.queryBus.execute<GetLoanByIdQuery, any>(
+      new GetLoanByIdQuery(id, details),
+    );
   }
 }

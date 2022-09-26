@@ -2,26 +2,20 @@ import {
   CommandHandler,
   EventPublisher,
   ICommandHandler,
-  CommandBus,
+  QueryBus,
 } from '@nestjs/cqrs';
-
-import { ConfigService } from '@nestjs/config';
-import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { ApproveLoanCommand } from './approve-loan.command';
-
 import { NotFoundException } from '@nestjs/common';
-import { GetLoanByIdCommand } from '../get-loan/loan-by-id.command';
-import { Loan } from 'src/loan/models/loan.models';
+import { GetLoanByIdQuery } from '../../queries/get-loan/loan-by-id.query';
+import { Loan } from '../../../loan/models/loan.models';
 /**
  * Manejador de comandos de aprovacion de creditos
  */
 @CommandHandler(ApproveLoanCommand)
 export class ApproveLoanHandler implements ICommandHandler<ApproveLoanCommand> {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly http: AxiosAdapter,
     private readonly eventPublisher: EventPublisher,
-    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   async execute(command: ApproveLoanCommand): Promise<any> {
@@ -35,8 +29,8 @@ export class ApproveLoanHandler implements ICommandHandler<ApproveLoanCommand> {
      * Busca en la bd de mambu si existe el loan
      * llamamos el comando que hace eso, dentro el comando verifica y lanza error si no lo encuentra
      */
-    const data = await this.commandBus.execute<GetLoanByIdCommand, Loan>(
-      new GetLoanByIdCommand(id),
+    const data = await this.queryBus.execute<GetLoanByIdQuery, Loan>(
+      new GetLoanByIdQuery(id),
     );
 
     //verificar si ya esta aprobado
@@ -56,7 +50,7 @@ export class ApproveLoanHandler implements ICommandHandler<ApproveLoanCommand> {
     );
 
     //Metodo que esta en el la entidad loan aggergate root que aplica el evento
-    loan.prestamoAprovado(id, approveLoanDto);
+    loan.approvedLoan(id, approveLoanDto);
 
     //confirma el evento
     loan.commit();

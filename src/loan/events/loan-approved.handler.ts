@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { AxiosAdapter } from 'src/shared/adapters/axios.adapter';
-import { getHeaders } from 'src/shared/helpers/getHeaders';
+import { AxiosAdapter } from '../../shared/adapters/axios.adapter';
+import { getHeaders } from '../../shared/helpers/getHeaders';
 import { LoanApprovedEvent } from './loan-approved.event';
 
 /**
@@ -28,6 +28,7 @@ export class LoanApprovedHandler implements IEventHandler<LoanApprovedEvent> {
       {
         headers,
         baseURL: this.configService.get('baseUrl'),
+        
       },
     );
 

@@ -1,15 +1,15 @@
-import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Deposit } from 'src/deposit/models/deposit.models';
-import { AxiosAdapter } from 'src/shared/adapters/axios.adapter';
-import { getHeaders } from 'src/shared/helpers/getHeaders';
-import { DepositAccountIdCommand } from '../deposit-account-id/deposit-account-id.command';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { getHeaders } from '../../../shared/helpers/getHeaders';
+import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { DepositTransactionCommand } from './deposit-transaction.command';
+import { Deposit } from './../../models/deposit.models';
+import { DepositAccountIdQuery } from './../../queries/deposit-account-id/deposit-account-id.query';
+import { NotFoundException } from '@nestjs/common';
+
 /**
  * Manejador de comando que deposita una cantidad de dinero en una cuenta de deposito creada
  */
-
 @CommandHandler(DepositTransactionCommand)
 export class DepositTransactionHandler
   implements ICommandHandler<DepositTransactionCommand>
@@ -17,19 +17,22 @@ export class DepositTransactionHandler
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
-    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   async execute(command: DepositTransactionCommand): Promise<any> {
     //Obtenemos el body dto o la data y el id de la cuenta de deposito al cual se le asignara
     const { depositTransactionDto, id } = command;
 
+    //Obtrener headers
     const headers = getHeaders(this.configService);
-    //Buscar que la cuenta exista 
-    const depositAccount = await this.commandBus.execute<
-      DepositAccountIdCommand,
+
+    //Buscar que la cuenta exista
+    const depositAccount = await this.queryBus.execute<
+      DepositAccountIdQuery,
       Deposit
-    >(new DepositAccountIdCommand(id));
+    >(new DepositAccountIdQuery(id));
+
     //Si cumple la condicion entonces  que su estado se apobado o activo
     if (
       depositAccount.accountState === 'APPROVED' ||

@@ -1,31 +1,31 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetClientsQuery } from './get-clients.query';
 import { ConfigService } from '@nestjs/config';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
+import { GetClientByIdQuery } from '..';
+
 /**
- * Consultas de cliente
+ * Consultas de cliente por Id
  */
-@QueryHandler(GetClientsQuery)
-export class GetClientHandler implements IQueryHandler<GetClientsQuery> {
+@QueryHandler(GetClientByIdQuery)
+export class GetClientByIdHandler implements IQueryHandler<GetClientByIdQuery> {
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
   ) {}
 
-  async execute(getClientsQuery: GetClientsQuery): Promise<any> {
+  async execute(query: GetClientByIdQuery): Promise<any> {
     //Obtener los headers
     const headers = getHeaders(this.configService);
-    
-    //Obtener los parametros como el limite y la paginacion
-    const params = getClientsQuery.paginationDto;
+    //Obtener los parametros cde detalles
+    const { id, details } = query;
 
     const data = await this.http.get<any>(
-      this.configService.get('urlClients'),
+      this.configService.get('urlClients') + id,
       {
         headers,
         baseURL: this.configService.get('baseUrl'),
-        params,
+        params: details,
       },
     );
     return data;

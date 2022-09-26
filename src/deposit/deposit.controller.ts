@@ -1,23 +1,27 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { PaginationDto } from '../shared/dto/pagination.dto';
+import {
+  CreateDepositCommand,
+  DepositTransactionCommand,
+  TransferTransactionCommand,
+  WithdrawalTransactionCommand,
+} from './commands';
 import {
   CreateDepositDto,
   DepositTransactionDto,
   TransferTransactionDto,
   WithdrawalTransactionDto,
 } from './dto';
-import { CommandBus } from '@nestjs/cqrs';
-import {
-  CreateDepositCommand,
-  DepositAccountIdCommand,
-  DepositTransactionCommand,
-  TransferTransactionCommand,
-  WithdrawalTransactionCommand,
-} from './commands';
 import { Deposit } from './models/deposit.models';
-import { PaginationDto } from '../shared/dto/pagination.dto';
+import { DepositAccountIdQuery } from './queries';
+
 @Controller('deposits')
 export class DepositController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   /**Ruta para la creacion de un deposito */
   @Post()
@@ -41,8 +45,8 @@ export class DepositController {
   /**Obtiene una cuenta de deposito por id*/
   @Get(':id')
   async findOne(@Param('id') id: string, @Query() details?: PaginationDto) {
-    return await this.commandBus.execute<DepositAccountIdCommand, any>(
-      new DepositAccountIdCommand(id, details),
+    return await this.queryBus.execute<DepositAccountIdQuery, any>(
+      new DepositAccountIdQuery(id, details),
     );
   }
 

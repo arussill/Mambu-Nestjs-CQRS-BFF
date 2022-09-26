@@ -1,21 +1,22 @@
 import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Loan } from 'src/loan/models/loan.models';
-import { AxiosAdapter } from 'src/shared/adapters/axios.adapter';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Loan } from '../../../loan/models/loan.models';
+import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
-import { GetLoanByIdCommand } from './loan-by-id.command';
+import { GetLoanByIdQuery } from './loan-by-id.query';
+
 /**
- * Manejador del comando que recupera obtiene loan por el id
+ * Manejador del query que recupera obtiene loan por el id
  */
-@CommandHandler(GetLoanByIdCommand)
-export class GetLoanByIdHandler implements ICommandHandler<GetLoanByIdCommand> {
+@QueryHandler(GetLoanByIdQuery)
+export class GetLoanByIdHandler implements IQueryHandler<GetLoanByIdQuery> {
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
   ) {}
 
-  async execute(command: GetLoanByIdCommand): Promise<any> {
+  async execute(command: GetLoanByIdQuery): Promise<any> {
     //Obtenemos los headers
     const headers = getHeaders(this.configService);
 

@@ -5,7 +5,6 @@ import {
   IsPositive,
   Min,
 } from 'class-validator';
-
 export class DepositTransactionDto {
   @IsNumber()
   @IsPositive()

@@ -1,11 +1,12 @@
-import { CommandHandler, ICommandHandler, CommandBus } from '@nestjs/cqrs';
-import { TransferTransactionCommand } from './transfer-transaction.command';
+import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { Deposit } from '../../../deposit/models/deposit.models';
+import { DepositAccountIdQuery } from '../../../deposit/queries/deposit-account-id/deposit-account-id.query';
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
-import { DepositAccountIdCommand } from '../deposit-account-id/deposit-account-id.command';
-import { Deposit } from 'src/deposit/models/deposit.models';
-import { NotFoundException } from '@nestjs/common';
+import { TransferTransactionCommand } from './transfer-transaction.command';
+
 /**
  * Manejador de comando que realiza trasferencia entre dos cuentas
  */
@@ -16,7 +17,7 @@ export class TransferTransactionHandler
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
-    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   async execute(command: TransferTransactionCommand): Promise<any> {
@@ -29,16 +30,16 @@ export class TransferTransactionHandler
 
     //Verificar que ambas cuentas existan
     //cuenta que envia el dinero
-    const accountSend = await this.commandBus.execute<
-      DepositAccountIdCommand,
+    const accountSend = await this.queryBus.execute<
+      DepositAccountIdQuery,
       Deposit
-    >(new DepositAccountIdCommand(id));
+    >(new DepositAccountIdQuery(id));
     //cuenta que recibe el dinero
-    const accountArrive = await this.commandBus.execute<
-      DepositAccountIdCommand,
+    const accountArrive = await this.queryBus.execute<
+      DepositAccountIdQuery,
       Deposit
     >(
-      new DepositAccountIdCommand(
+      new DepositAccountIdQuery(
         transferTransactionDto.transferDetails.linkedAccountId, //id de la cuenta que recibe el dinero
       ),
     );
@@ -52,7 +53,7 @@ export class TransferTransactionHandler
     //verifacar que la cuenta que envia la plata tenga saldo suficiente
     if (accountSend.balances.availableBalance <= transferTransactionDto.amount)
       throw new NotFoundException(
-        'This Deposit Account has an insufficient balance or balance is equal to zero. ¡Please Check your balance!*',
+        'This Deposit Account has an insufficient balance or balance is equal to zero. ¡Please Check your balance!',
       );
 
     //verificar que la cuenta que recibe la plata tenga estado activo o aprobado
@@ -69,8 +70,8 @@ export class TransferTransactionHandler
           baseURL: this.configService.get('baseUrl'),
         },
       );
-      return data;
       //retornar
+      return data;
     }
     throw new NotFoundException(
       'This account must have accountState ACTIVE or APPROVED to be able to make a transfer',

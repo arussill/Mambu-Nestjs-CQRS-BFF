@@ -1,24 +1,25 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DepositAccountIdCommand } from './deposit-account-id.command';
-import { ConfigService } from '@nestjs/config';
-import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
-import { getHeaders } from '../../../shared/helpers/getHeaders';
 import { NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { AxiosAdapter } from 'src/shared/adapters/axios.adapter';
+import { getHeaders } from 'src/shared/helpers/getHeaders';
+import { DepositAccountIdQuery } from './deposit-account-id.query';
+
 /**
- * Manejador del comando que retorna la cuenta de desposito por ID
+ * Manejador del Query que retorna la cuenta de desposito por ID
  */
-@CommandHandler(DepositAccountIdCommand)
+@QueryHandler(DepositAccountIdQuery)
 export class DepositAccountIdHandler
-  implements ICommandHandler<DepositAccountIdCommand>
+  implements IQueryHandler<DepositAccountIdQuery>
 {
   constructor(
     private readonly configService: ConfigService,
     private readonly http: AxiosAdapter,
   ) {}
 
-  async execute(command: DepositAccountIdCommand): Promise<any> {
+  async execute(query: DepositAccountIdQuery): Promise<any> {
     //Obtener id y detalles
-    const { id, details } = command;
+    const { id, details } = query;
 
     //Obtener headers
     const headers = getHeaders(this.configService);

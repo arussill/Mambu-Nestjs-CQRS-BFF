@@ -4,17 +4,17 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes( 
+  app.useGlobalPipes(
     new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
       transformOptions: {
         enableImplicitConversion: true,
       },
-    })
-   );
+    }),
+  );
   await app.listen(process.env.port);
-  Logger.log(`App running on port ${process.env.port}`)
+  Logger.log(`App running on port ${process.env.port}`);
 }
 bootstrap();

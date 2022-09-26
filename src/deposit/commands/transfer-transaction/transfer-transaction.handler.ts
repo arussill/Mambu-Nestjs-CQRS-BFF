@@ -6,6 +6,11 @@ import { DepositAccountIdQuery } from '../../../deposit/queries/deposit-account-
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
 import { TransferTransactionCommand } from './transfer-transaction.command';
+import {
+  validationStateActive,
+  validationStateActiveOrApproved,
+} from '../../../shared/validation/validation-account-state';
+import { validationBalance } from '../../../shared/validation/validation-account-balance';
 
 /**
  * Manejador de comando que realiza trasferencia entre dos cuentas
@@ -45,36 +50,42 @@ export class TransferTransactionHandler
     );
 
     //verificar que la cuenta que envia la plata tenga estado activo
-    if (accountSend.accountState !== 'ACTIVE')
-      throw new NotFoundException(
-        'This account must have accountState ACTIVE to be able to make a transfer',
-      );
+    // if (accountSend.accountState !== 'ACTIVE')
+    //   throw new NotFoundException(
+    //     'This account must have accountState ACTIVE to be able to make a transfer',
+    //   );
+    validationStateActive(accountSend.accountState);
 
     //verifacar que la cuenta que envia la plata tenga saldo suficiente
-    if (accountSend.balances.availableBalance <= transferTransactionDto.amount)
-      throw new NotFoundException(
-        'This Deposit Account has an insufficient balance or balance is equal to zero. ¡Please Check your balance!',
-      );
+    // if (accountSend.balances.availableBalance <= transferTransactionDto.amount)
+    //   throw new NotFoundException(
+    //     'This Deposit Account has an insufficient balance or balance is equal to zero. ¡Please Check your balance!',
+    //   );
+    validationBalance(
+      accountSend.balances.availableBalance,
+      transferTransactionDto.amount,
+    );
 
     //verificar que la cuenta que recibe la plata tenga estado activo o aprobado
-    if (
-      accountArrive.accountState === 'APPROVED' ||
-      accountArrive.accountState === 'ACTIVE'
-    ) {
-      //mandar la transferencia
-      const data = await this.http.post(
-        this.configService.get('urlDeposits') + id + '/transfer-transactions',
-        transferTransactionDto,
-        {
-          headers,
-          baseURL: this.configService.get('baseUrl'),
-        },
-      );
-      //retornar
-      return data;
-    }
-    throw new NotFoundException(
-      'This account must have accountState ACTIVE or APPROVED to be able to make a transfer',
+    // if (
+    //   accountArrive.accountState === 'APPROVED' ||
+    //   accountArrive.accountState === 'ACTIVE'
+    // ) {
+    validationStateActiveOrApproved(accountArrive.accountState);
+    //mandar la transferencia
+    const data = await this.http.post(
+      this.configService.get('urlDeposits') + id + '/transfer-transactions',
+      transferTransactionDto,
+      {
+        headers,
+        baseURL: this.configService.get('baseUrl'),
+      },
     );
+    //retornar
+    return data;
   }
+  // throw new NotFoundException(
+  //   'This account must have accountState ACTIVE or APPROVED to be able to make a transfer',
+  // );
+  // }
 }

@@ -8,6 +8,7 @@ import { ApproveLoanCommand } from './approve-loan.command';
 import { NotFoundException } from '@nestjs/common';
 import { GetLoanByIdQuery } from '../../queries/get-loan/loan-by-id.query';
 import { Loan } from '../../../loan/models/loan.models';
+import { validationStateApproved } from 'src/shared/validation/validation-account-state';
 /**
  * Manejador de comandos de aprovacion de creditos
  */
@@ -34,8 +35,9 @@ export class ApproveLoanHandler implements ICommandHandler<ApproveLoanCommand> {
     );
 
     //verificar si ya esta aprobado
-    if (data.accountState === 'APPROVED')
-      throw new NotFoundException('This Loan already is approved');
+    validationStateApproved(data.accountState)
+    // if (data.accountState === 'APPROVED')
+    //   throw new NotFoundException('This Loan already is approved');
 
     //Publicado de enventos
     const loan = await this.eventPublisher.mergeObjectContext(

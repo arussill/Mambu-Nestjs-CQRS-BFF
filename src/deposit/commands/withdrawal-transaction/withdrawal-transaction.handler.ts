@@ -6,6 +6,8 @@ import { DepositAccountIdQuery } from '../../../deposit/queries/deposit-account-
 import { AxiosAdapter } from '../../../shared/adapters/axios.adapter';
 import { getHeaders } from '../../../shared/helpers/getHeaders';
 import { WithdrawalTransactionCommand } from './withdrawal-transaction.command';
+import { validationStateActive } from '../../../shared/validation/validation-account-state';
+import { validationBalanceWithdrawal } from '../../../shared/validation/validation-account-balance';
 
 /**Manejador de comando que permite realizar una retiro */
 @CommandHandler(WithdrawalTransactionCommand)
@@ -32,30 +34,35 @@ export class WithdrawalTransactionHandler
     >(new DepositAccountIdQuery(id));
 
     //se comprueba que la cuenta este activa
-    if (depositAccount.accountState !== 'ACTIVE')
-      throw new NotFoundException(
-        'This Deposit Account must be ACTIVE for to do this transaction.',
-      );
+    // if (depositAccount.accountState !== 'ACTIVE')
+    //   throw new NotFoundException(
+    //     'This Deposit Account must be ACTIVE for to do this transaction.',
+    //   );
+    validationStateActive(depositAccount.accountState);
 
     //se comprueba que el monto disponible sea mayor o igual al retiro (que la cuenta tenga dinero)
-    if (
-      depositAccount.balances.availableBalance >=
-      withdrawalTransactionDto.amount
-    ) {
-      //se puede retirar
-      const data = await this.http.post(
-        this.configService.get('urlDeposits') + id + '/withdrawal-transactions',
-        withdrawalTransactionDto,
-        {
-          headers,
-          baseURL: this.configService.get('baseUrl'),
-        },
-      );
-      return data;
-    }
-    //si el monto disponible es menor
-    throw new NotFoundException(
-      'This Deposit Account has an insufficient balance or balance is equal to zero. ¡Please Check your balance!*',
+    // if (
+    //   depositAccount.balances.availableBalance >=
+    //   withdrawalTransactionDto.amount
+    // ) {
+    validationBalanceWithdrawal(
+      depositAccount.balances.availableBalance,
+      withdrawalTransactionDto.amount,
     );
+    //se puede retirar
+    const data = await this.http.post(
+      this.configService.get('urlDeposits') + id + '/withdrawal-transactions',
+      withdrawalTransactionDto,
+      {
+        headers,
+        baseURL: this.configService.get('baseUrl'),
+      },
+    );
+    return data;
   }
+  //si el monto disponible es menor
+  // throw new NotFoundException(
+  //   'This Deposit Account has an insufficient balance or balance is equal to zero. ¡Please Check your balance!*',
+  // );
+  // }
 }

@@ -6,6 +6,11 @@ import { DepositTransactionCommand } from './deposit-transaction.command';
 import { Deposit } from './../../models/deposit.models';
 import { DepositAccountIdQuery } from './../../queries/deposit-account-id/deposit-account-id.query';
 import { NotFoundException } from '@nestjs/common';
+import {
+  validationStateApproved,
+  validationStateActive,
+  validationStateActiveOrApproved,
+} from '../../../shared/validation/validation-account-state';
 
 /**
  * Manejador de comando que deposita una cantidad de dinero en una cuenta de deposito creada
@@ -34,21 +39,24 @@ export class DepositTransactionHandler
     >(new DepositAccountIdQuery(id));
 
     //Si cumple la condicion entonces  que su estado se apobado o activo
-    if (
-      depositAccount.accountState === 'APPROVED' ||
-      depositAccount.accountState === 'ACTIVE'
-    ) {
-      //consumir la ruta de depositar una cantidad de dinero en la cuenta de deposito
-      const data = await this.http.post<any>(
-        this.configService.get('urlDeposits') + id + '/deposit-transactions', //ruta para poder ingresar una cantidad a la cuenta de deposito de id
-        depositTransactionDto,
-        {
-          headers,
-          baseURL: this.configService.get('baseUrl'),
-        },
-      );
-      return data;
-    }
-    throw new NotFoundException('The accountState must be APPROVED or ACTIVE');
+    // if (
+    //   depositAccount.accountState === 'APPROVED' ||
+    //   depositAccount.accountState === 'ACTIVE'
+    // ) {
+
+    validationStateActiveOrApproved(depositAccount.accountState);
+
+    //consumir la ruta de depositar una cantidad de dinero en la cuenta de deposito
+    const data = await this.http.post<any>(
+      this.configService.get('urlDeposits') + id + '/deposit-transactions', //ruta para poder ingresar una cantidad a la cuenta de deposito de id
+      depositTransactionDto,
+      {
+        headers,
+        baseURL: this.configService.get('baseUrl'),
+      },
+    );
+    return data;
+    //   }
+    //   throw new NotFoundException('The accountState must be APPROVED or ACTIVE');
   }
 }
